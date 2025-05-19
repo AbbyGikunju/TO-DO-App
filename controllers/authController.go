@@ -133,6 +133,11 @@ func LoginHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
+
+func IndexPageHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "")
+}
+
 // LogoutHandler logs the user out by clearing session cookie
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	utils.ClearSessionCookie(w)

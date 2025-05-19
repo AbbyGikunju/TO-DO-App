@@ -92,7 +92,7 @@ footer {
     <div class="container">
         <h2>ACCOUNT CREATION</h2>
         <form id="signupForm">
-            <label for="username">Username:</label>
+         5     <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
 
             <label for="email">Email:</label>
@@ -106,7 +106,7 @@ footer {
             <input type="password" id="confirmPassword" required>
             <p class="error" id="confirmPasswordError"></p>
 
-            <button type="submit">Register</button>
+            <button type="submit" id="submitBtn">Register</button>
             <button class="back" type="button" onclick="window.location.href='login.html'">Back</button>
         </form>
 
@@ -139,6 +139,11 @@ footer {
             confirmPasswordError.textContent = "Passwords do not match!";
             return;
         }
+        
+        //Disable the submit button and show feedback
+        const submitBtn = document.getElementById("submitBtn")
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Registering...";
 
         const data = { username, email, password, confirmPassword };
 
