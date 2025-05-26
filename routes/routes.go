@@ -10,7 +10,7 @@ import (
 func SetupRoutes(router *mux.Router, db *sql.DB) {
 	
 	router.HandleFunc("/", controllers.LoginPageHandler).Methods("GET")
-	// router.HandleFunc("/index", controllers.IndexPageHandler).Methods("GET") 
+	router.HandleFunc("/index", controllers.IndexPageHandler).Methods("GET") 
 
 	router.HandleFunc("/login", controllers.LoginHandler(db)).Methods("POST")
 	router.HandleFunc("/register", controllers.RegisterPageHandler).Methods("GET")

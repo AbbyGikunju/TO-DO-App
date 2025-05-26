@@ -156,7 +156,7 @@ footer {
         .then(data => {
             if (data.success) {
                 alert("Registration successful!");
-                window.location.href = "/"; // redirects to login
+                window.location.href = "/login"; // redirects to login
             } else {
                 alert("Registration failed: " + (data.message || "Unknown error."));
             }

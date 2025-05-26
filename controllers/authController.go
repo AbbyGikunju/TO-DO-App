@@ -10,14 +10,14 @@ import (
 	"todo-app/models"
 	"todo-app/utils"
 
-	"github.com/gorilla/securecookie"
+	//"github.com/gorilla/securecookie"
 	"golang.org/x/crypto/bcrypt"
 )
 
-var cookieHandler = securecookie.New(
-	securecookie.GenerateRandomKey(64),
-	securecookie.GenerateRandomKey(32),
-)
+// var cookieHandler = securecookie.New(
+// 	securecookie.GenerateRandomKey(64),
+// 	securecookie.GenerateRandomKey(32),
+// )
 
 // RegisterPageHandler renders the registration page
 func RegisterPageHandler(w http.ResponseWriter, r *http.Request) {
@@ -127,15 +127,18 @@ func LoginHandler(db *sql.DB) http.HandlerFunc {
 		token := utils.GenerateSessionToken()
 		utils.SetSessionCookie(w, token)
 
-		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"success": true}`))
+        json.NewEncoder(w).Encode(map[string]interface{}{
+            "success": true,
+            "message": "Login successful",
+            "redirect": "templates/index.html",
+        })
 	}
 }
 
 
 func IndexPageHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "")
+	http.ServeFile(w, r, "templates/index.html")
 }
 
 // LogoutHandler logs the user out by clearing session cookie

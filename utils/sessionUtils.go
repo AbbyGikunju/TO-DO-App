@@ -17,6 +17,12 @@ func GenerateSessionToken() string {
 	return hex.EncodeToString(bytes)
 }
 
+// IsSessionValid checks if the session token is non-empty (basic check)
+func IsSessionValid(token string) bool {
+    return token != ""
+}
+
+
 //SetSessionCookie sets the session token as a secure HTTP cookie
 func SetSessionCookie(w http.ResponseWriter, token string) {
 	http.SetCookie(w, &http.Cookie{

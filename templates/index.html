@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Todo App</title>
+<style>
+  body{
+    text-align: center;
+    background-color: rgb(225, 225, 225);
+  }
+  .topbar {
+    width: 70%;
+    background-color: green;
+    margin: 20px auto 0 auto;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative; 
+    overflow: hidden;   
+    color: white;     
+    z-index: 1;  
+  }
+  .topbar::before {
+    content: "";
+    position: absolute;  
+    width: 100%;
+    height: 100%;
+    background-image: url("https://i.ibb.co/g2ffPxs/Lush-green-rainforest-canopy-creating-stunning.jpg");
+    background-size: cover;
+    background-position: center;
+    filter: blur(7px) brightness(50%); 
+    z-index: -1;
+  }
+  .topbar p{
+    color:white;
+    font-weight: bold;
+    font-size: 70px;
+  }
+  .mainSchedule{
+    border-radius: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    width:40%;
+    height: 50px;  
+    margin: 15px auto 0 auto;
+  }
+  .btn{
+    background-color: rgb(173, 192, 173);
+    border: none;
+    width:100%;
+    height:100%;
+    cursor: pointer;
+    color:black;
+    font-size: large;
+  }
+  .btn:hover{
+    background-color: rgb(161, 204, 161);
+  }
+  .clickedbtn{
+    background-color: rgb(52, 85, 52);
+    border: none;
+    width:100%;
+    height:100%;
+    cursor: pointer;
+    color:white;
+    font-size: large;
+  }
+  .tasks {
+    display: flex;
+    justify-content: space-between;
+    width:70%;
+    margin: 30px auto 0 auto;
+    text-align: center;
+    align-items: center;
+  }
+  .tasks p{
+    display:inline-block;
+    font-size: 30px;
+    font-weight: bold;
+  }
+  .tasks button{
+    background-color: green;
+    width: 150px;
+    color: white;
+    border: none;
+    height: 50px;
+    border-radius: 10px;
+    cursor:pointer;
+  }
+  .tasks button:hover{
+    background-color: rgb(67, 155, 67);
+  }
+  .taskdiv{
+    width: 70%;
+    margin:0 auto;
+    height: 800px;
+    background-color: white;
+    border-radius: 5px;
+    padding-top: 40px;
+  }
+  .tasksmalldiv{
+    width: 90%;
+    margin:0 auto;
+    height: 400px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  }
+  .indivtask{
+    width: 99%;
+    margin:0 auto 5px auto;
+    height: 70px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: space-between;
+  }
+  .indivtask:hover{
+    background-color: rgb(243, 241, 241);
+  }
+  .indivtaskbox{
+    display: flex; 
+    align-items: center;
+  }
+  .indivtaskbox p{
+    display: inline-block;
+    font-family: roboto, sans-serif;
+    margin-right: 100px;
+  }
+  .indivtaskbox button{
+    border: none;
+    background-color: white;
+    width:50px;
+    height:50px;
+    margin-right: 40px;
+    cursor: pointer;
+  }
+  .indivtaskbox button:hover{
+    background-color: rgb(185, 179, 179);
+    border-radius: 5px;
+  }
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    width: 500px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  .modal-content h2 {
+    margin-bottom: 20px;
+  }
+  .modal-content label {
+    display: block;
+    margin: 10px 0 5px;
+  }
+  .modal-content input, 
+  .modal-content select, 
+  .modal-content textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 15px;
+  }
+  .row {
+    display: flex;
+    gap: 10px;
+  }
+  .col {
+    flex: 1;
+  }
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  button.close {
+    background: white;
+    border: 1px solid green;
+    color: green;
+    padding: 8px 15px;
+    border-radius: 5px;
+  }
+  button.add {
+    background: green;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar"><p>Todo App</p></div>
+
+<div class="mainSchedule">
+  <button id="btnToday" class="clickedbtn">Today</button>
+  <button id="btnPending" class="btn">Pending</button>
+  <button id="btnOverdue" class="btn">Overdue</button>
+</div>
+
+<div class="tasks">
+  <p>Tasks</p>
+  <button id="addTaskBtn"><b>+ Add task</b></button>
+</div>
+
+<div class="taskdiv">
+  <div class="tasksmalldiv" id="taskList">
+    <!-- Tasks will be injected here -->
+  </div>
+</div>
+
+<!-- Modal popup -->
+<div id="taskModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h2>Task Details</h2>
+
+    <label for="title">Title</label>
+    <input type="text" id="title" placeholder="Add a task title" />
+
+    <div class="row">
+      <div class="col">
+        <label for="priority">Priority</label>
+        <select id="priority">
+          <option>Select priority</option>
+          <option>High</option>
+          <option>Medium</option>
+          <option>Low</option>
+        </select>
+      </div>
+      <div class="col">
+        <label for="deadline">Deadline</label>
+        <input type="date" id="deadline" />
+      </div>
+    </div>
+
+    <label for="comments">Comments</label>
+    <textarea id="comments" placeholder="Add any comments to your task"></textarea>
+
+    <div class="modal-buttons">
+      <button class="close" id="closeModalBtn">Close</button>
+      <button class="add" id="addTaskModalBtn">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Task Data
+  const todayList = [
+    { name: "Laundry", date: "Tue May 13 2025" },
+    { name: "Carding", date: "Mon May 12 2025" },
+    { name: "Golfing", date: "Wed May 14 2025" },
+    { name: "Cycling", date: "Thur May 15 2025" }
+  ];
+  const overdue = [
+    { name: "Hiking", date: "Sun May 11 2025" },
+    { name: "Swimming", date: "Sat May 10 2025" },
+    { name: "Coding", date: "Sun May 11 2025" },
+    { name: "Yoga", date: "Fri May 9 2025" }
+  ];
+  const pending = [
+    { name: "Shoe shining", date: "Wed May 1 2025" },
+    { name: "Shaving", date: "Wed May 1 2025" },
+    { name: "Brushing teeth", date: "Wed May 1 2025" },
+    { name: "Charging phone", date: "Wed May 1 2025" }
+  ];
+
+  // Current active list: "today", "pending", or "overdue"
+  let activeList = "today";
+
+  // Elements
+  const btnToday = document.getElementById("btnToday");
+  const btnPending = document.getElementById("btnPending");
+  const btnOverdue = document.getElementById("btnOverdue");
+  const taskListDiv = document.getElementById("taskList");
+  const addTaskBtn = document.getElementById("addTaskBtn");
+  const modal = document.getElementById("taskModal");
+  const closeModalBtn = document.getElementById("closeModalBtn");
+  const addTaskModalBtn = document.getElementById("addTaskModalBtn");
+
+  // Helper: Render tasks based on activeList
+  function renderTasks() {
+    taskListDiv.innerHTML = "";
+    let listToRender = [];
+    if (activeList === "today") listToRender = todayList;
+    else if (activeList === "pending") listToRender = pending;
+    else if (activeList === "overdue") listToRender = overdue;
+
+    if (listToRender.length === 0) {
+      taskListDiv.innerHTML = "<p>No tasks to display.</p>";
+      return;
+    }
+
+    listToRender.forEach((task, idx) => {
+      const taskDiv = document.createElement("div");
+      taskDiv.className = "indivtask";
+
+      const taskBox = document.createElement("div");
+      taskBox.className = "indivtaskbox";
+
+      const taskName = document.createElement("p");
+      taskName.textContent = task.name;
+
+      const taskDate = document.createElement("p");
+      taskDate.textContent = task.date;
+      taskDate.style.marginRight = "20px";
+
+      const editBtn = document.createElement("button");
+      editBtn.textContent = "✏️";
+      editBtn.title = "Edit task";
+      editBtn.addEventListener("click", () => {
+        openModalForEdit(task, idx);
+      });
+
+      taskBox.appendChild(taskName);
+      taskBox.appendChild(taskDate);
+      taskDiv.appendChild(taskBox);
+      taskDiv.appendChild(editBtn);
+
+      taskListDiv.appendChild(taskDiv);
+    });
+  }
+
+  // Update button classes for active state
+  function updateButtonClasses() {
+    btnToday.className = activeList === "today" ? "clickedbtn" : "btn";
+    btnPending.className = activeList === "pending" ? "clickedbtn" : "btn";
+    btnOverdue.className = activeList === "overdue" ? "clickedbtn" : "btn";
+  }
+
+  // Button click handlers
+  btnToday.onclick = () => {
+    activeList = "today";
+    updateButtonClasses();
+    renderTasks();
+  };
+  btnPending.onclick = () => {
+    activeList = "pending";
+    updateButtonClasses();
+    renderTasks();
+  };
+  btnOverdue.onclick = () => {
+    activeList = "overdue";
+    updateButtonClasses();
+    renderTasks();
+  };
+
+  // Modal state
+  let editIndex = null;
+  let isEditing = false;
+
+  // Open modal for adding new task
+  function openModalForAdd() {
+    isEditing = false;
+    editIndex = null;
+    modal.style.display = "flex";
+    clearModalInputs();
+  }
+
+  // Open modal for editing a task
+  function openModalForEdit(task, idx) {
+    isEditing = true;
+    editIndex = idx;
+    modal.style.display = "flex";
+    document.getElementById("title").value = task.name || "";
+    // For this example, priority, deadline, comments are empty as original data does not have them
+    document.getElementById("priority").value = "Select priority";
+    document.getElementById("deadline").value = "";
+    document.getElementById("comments").value = "";
+  }
+
+  // Close modal
+  function closeModal() {
+    modal.style.display = "none";
+  }
+
+  // Clear modal inputs
+  function clearModalInputs() {
+    document.getElementById("title").value = "";
+    document.getElementById("priority").value = "Select priority";
+    document.getElementById("deadline").value = "";
+    document.getElementById("comments").value = "";
+  }
+
+  // Add or Edit Task from modal
+  function addOrEditTask() {
+    const title = document.getElementById("title").value.trim();
+    if (!title) {
+      alert("Task title cannot be empty.");
+      return;
+    }
+
+    // For demo, we won't process priority, deadline, comments
+    const newTask = {
+      name: title,
+      date: new Date().toDateString()
+    };
+
+    if (isEditing) {
+      // Replace the task at editIndex
+      if (activeList === "today") todayList[editIndex] = newTask;
+      else if (activeList === "pending") pending[editIndex] = newTask;
+      else if (activeList === "overdue") overdue[editIndex] = newTask;
+    } else {
+      // Add new task at the end of current list
+      if (activeList === "today") todayList.push(newTask);
+      else if (activeList === "pending") pending.push(newTask);
+      else if (activeList === "overdue") overdue.push(newTask);
+    }
+
+    renderTasks();
+    closeModal();
+  }
+
+  // Event listeners
+  addTaskBtn.onclick = openModalForAdd;
+  closeModalBtn.onclick = closeModal;
+  addTaskModalBtn.onclick = addOrEditTask;
+
+  // Close modal when clicking outside modal-content
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Initial render
+  updateButtonClasses();
+  renderTasks();
+</script>
+
+</body>
+</html>
