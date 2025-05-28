@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+
+	"todo-app/db"
 	"todo-app/routes"
 
 	"github.com/gorilla/mux"
@@ -11,6 +13,9 @@ import (
 )
 
 func main() {
+	//Initialize DB globally
+	db.InitDB("todo.db")
+
 	router := mux.NewRouter()
 	db, err := sql.Open("sqlite", "./db/todo.db")
 	if err != nil {
@@ -23,6 +28,8 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to connect to DB:", err)
 	}
+
+	
 	routes.SetupRoutes(router, db)
 
 	log.Println("Starting server on: 8080")

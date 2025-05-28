@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Todo App</title>
 <style>
-  body{
+ body{
     text-align: center;
     background-color: rgb(225, 225, 225);
   }
@@ -230,10 +230,8 @@
 <div id="taskModal" class="modal" style="display:none;">
   <div class="modal-content">
     <h2>Task Details</h2>
-
     <label for="title">Title</label>
     <input type="text" id="title" placeholder="Add a task title" />
-
     <div class="row">
       <div class="col">
         <label for="priority">Priority</label>
@@ -249,10 +247,8 @@
         <input type="date" id="deadline" />
       </div>
     </div>
-
     <label for="comments">Comments</label>
     <textarea id="comments" placeholder="Add any comments to your task"></textarea>
-
     <div class="modal-buttons">
       <button class="close" id="closeModalBtn">Close</button>
       <button class="add" id="addTaskModalBtn">Add Task</button>
@@ -261,186 +257,156 @@
 </div>
 
 <script>
-  // Task Data
-  const todayList = [
-    { name: "Laundry", date: "Tue May 13 2025" },
-    { name: "Carding", date: "Mon May 12 2025" },
-    { name: "Golfing", date: "Wed May 14 2025" },
-    { name: "Cycling", date: "Thur May 15 2025" }
-  ];
-  const overdue = [
-    { name: "Hiking", date: "Sun May 11 2025" },
-    { name: "Swimming", date: "Sat May 10 2025" },
-    { name: "Coding", date: "Sun May 11 2025" },
-    { name: "Yoga", date: "Fri May 9 2025" }
-  ];
-  const pending = [
-    { name: "Shoe shining", date: "Wed May 1 2025" },
-    { name: "Shaving", date: "Wed May 1 2025" },
-    { name: "Brushing teeth", date: "Wed May 1 2025" },
-    { name: "Charging phone", date: "Wed May 1 2025" }
-  ];
+let todayList = [
+  { id: 1, name: "Laundry", date: "Tue May 13 2025", completed: false, comments: "Use gentle cycle" },
+  { id: 2, name: "Carding", date: "Mon May 12 2025", completed: true, comments: "For the wool coat" },
+];
+let overdue = [
+  { id: 3, name: "Hiking", date: "Sun May 11 2025", completed: false }
+];
+let pending = [
+  { id: 4, name: "Shaving", date: "Wed May 1 2025", completed: false }
+];
+let activeList = "today";
+let editTaskId = null;
 
-  // Current active list: "today", "pending", or "overdue"
-  let activeList = "today";
+const btnToday = document.getElementById("btnToday");
+const btnPending = document.getElementById("btnPending");
+const btnOverdue = document.getElementById("btnOverdue");
+const taskListDiv = document.getElementById("taskList");
+const modal = document.getElementById("taskModal");
+const closeModalBtn = document.getElementById("closeModalBtn");
+const addTaskModalBtn = document.getElementById("addTaskModalBtn");
 
-  // Elements
-  const btnToday = document.getElementById("btnToday");
-  const btnPending = document.getElementById("btnPending");
-  const btnOverdue = document.getElementById("btnOverdue");
-  const taskListDiv = document.getElementById("taskList");
-  const addTaskBtn = document.getElementById("addTaskBtn");
-  const modal = document.getElementById("taskModal");
-  const closeModalBtn = document.getElementById("closeModalBtn");
-  const addTaskModalBtn = document.getElementById("addTaskModalBtn");
+function renderTasks() {
+  taskListDiv.innerHTML = "";
+  let listToRender = getListByActive();
+  if (listToRender.length === 0) {
+    taskListDiv.innerHTML = "<p>No tasks to display.</p>";
+    return;
+  }
+  listToRender.forEach((task, idx) => {
+    const taskDiv = document.createElement("div");
+    taskDiv.className = "indivtask";
+    const taskBox = document.createElement("div");
+    taskBox.className = "indivtaskbox";
 
-  // Helper: Render tasks based on activeList
-  function renderTasks() {
-    taskListDiv.innerHTML = "";
-    let listToRender = [];
-    if (activeList === "today") listToRender = todayList;
-    else if (activeList === "pending") listToRender = pending;
-    else if (activeList === "overdue") listToRender = overdue;
-
-    if (listToRender.length === 0) {
-      taskListDiv.innerHTML = "<p>No tasks to display.</p>";
-      return;
-    }
-
-    listToRender.forEach((task, idx) => {
-      const taskDiv = document.createElement("div");
-      taskDiv.className = "indivtask";
-
-      const taskBox = document.createElement("div");
-      taskBox.className = "indivtaskbox";
-
-      const taskName = document.createElement("p");
-      taskName.textContent = task.name;
-
-      const taskDate = document.createElement("p");
-      taskDate.textContent = task.date;
-      taskDate.style.marginRight = "20px";
-
-      const editBtn = document.createElement("button");
-      editBtn.textContent = "✏️";
-      editBtn.title = "Edit task";
-      editBtn.addEventListener("click", () => {
-        openModalForEdit(task, idx);
-      });
-
-      taskBox.appendChild(taskName);
-      taskBox.appendChild(taskDate);
-      taskDiv.appendChild(taskBox);
-      taskDiv.appendChild(editBtn);
-
-      taskListDiv.appendChild(taskDiv);
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = task.completed;
+    checkbox.addEventListener("change", () => {
+      task.completed = checkbox.checked;
+      updateTaskCompleted(task.id, task.completed);
+      renderTasks();
     });
-  }
 
-  // Update button classes for active state
-  function updateButtonClasses() {
-    btnToday.className = activeList === "today" ? "clickedbtn" : "btn";
-    btnPending.className = activeList === "pending" ? "clickedbtn" : "btn";
-    btnOverdue.className = activeList === "overdue" ? "clickedbtn" : "btn";
-  }
+    const taskName = document.createElement("p");
+    taskName.textContent = task.name;
+    taskName.style.marginLeft = "10px";
+    taskName.style.textDecoration = task.completed ? "line-through" : "none";
+    taskName.style.color = task.completed ? "gray" : "black";
 
-  // Button click handlers
-  btnToday.onclick = () => {
-    activeList = "today";
-    updateButtonClasses();
-    renderTasks();
-  };
-  btnPending.onclick = () => {
-    activeList = "pending";
-    updateButtonClasses();
-    renderTasks();
-  };
-  btnOverdue.onclick = () => {
-    activeList = "overdue";
-    updateButtonClasses();
-    renderTasks();
-  };
+    const taskDate = document.createElement("p");
+    taskDate.textContent = task.date;
+    taskDate.style.marginRight = "20px";
 
-  // Modal state
-  let editIndex = null;
-  let isEditing = false;
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "✏️";
+    editBtn.title = "Edit task";
+    editBtn.addEventListener("click", () => openModal(task));
 
-  // Open modal for adding new task
-  function openModalForAdd() {
-    isEditing = false;
-    editIndex = null;
-    modal.style.display = "flex";
-    clearModalInputs();
-  }
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "🗑️";
+    deleteBtn.title = "Delete task";
+    deleteBtn.addEventListener("click", () => {
+      if (confirm("Are you sure?")) {
+        const list = getListByActive();
+        list.splice(idx, 1);
+        deleteTask(task.id);
+        renderTasks();
+      }
+    });
 
-  // Open modal for editing a task
-  function openModalForEdit(task, idx) {
-    isEditing = true;
-    editIndex = idx;
-    modal.style.display = "flex";
-    document.getElementById("title").value = task.name || "";
-    // For this example, priority, deadline, comments are empty as original data does not have them
-    document.getElementById("priority").value = "Select priority";
-    document.getElementById("deadline").value = "";
-    document.getElementById("comments").value = "";
-  }
-
-  // Close modal
-  function closeModal() {
-    modal.style.display = "none";
-  }
-
-  // Clear modal inputs
-  function clearModalInputs() {
-    document.getElementById("title").value = "";
-    document.getElementById("priority").value = "Select priority";
-    document.getElementById("deadline").value = "";
-    document.getElementById("comments").value = "";
-  }
-
-  // Add or Edit Task from modal
-  function addOrEditTask() {
-    const title = document.getElementById("title").value.trim();
-    if (!title) {
-      alert("Task title cannot be empty.");
-      return;
-    }
-
-    // For demo, we won't process priority, deadline, comments
-    const newTask = {
-      name: title,
-      date: new Date().toDateString()
-    };
-
-    if (isEditing) {
-      // Replace the task at editIndex
-      if (activeList === "today") todayList[editIndex] = newTask;
-      else if (activeList === "pending") pending[editIndex] = newTask;
-      else if (activeList === "overdue") overdue[editIndex] = newTask;
-    } else {
-      // Add new task at the end of current list
-      if (activeList === "today") todayList.push(newTask);
-      else if (activeList === "pending") pending.push(newTask);
-      else if (activeList === "overdue") overdue.push(newTask);
-    }
-
-    renderTasks();
-    closeModal();
-  }
-
-  // Event listeners
-  addTaskBtn.onclick = openModalForAdd;
-  closeModalBtn.onclick = closeModal;
-  addTaskModalBtn.onclick = addOrEditTask;
-
-  // Close modal when clicking outside modal-content
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeModal();
+    taskBox.appendChild(checkbox);
+    taskBox.appendChild(taskName);
+    taskBox.appendChild(taskDate);
+    taskDiv.appendChild(taskBox);
+    taskDiv.appendChild(editBtn);
+    taskDiv.appendChild(deleteBtn);
+    taskListDiv.appendChild(taskDiv);
   });
+}
 
-  // Initial render
+function getListByActive() {
+  if (activeList === "today") return todayList;
+  if (activeList === "pending") return pending;
+  return overdue;
+}
+
+function openModal(task) {
+  modal.style.display = "flex";
+  document.getElementById("title").value = task.name;
+  document.getElementById("priority").value = task.priority || "Select priority";
+  document.getElementById("deadline").value = task.deadline || "";
+  document.getElementById("comments").value = task.comments || "";
+  editTaskId = task.id;
+}
+
+closeModalBtn.onclick = () => {
+  modal.style.display = "none";
+  editTaskId = null;
+};
+
+addTaskModalBtn.onclick = () => {
+  let list = getListByActive();
+  const task = list.find(t => t.id === editTaskId);
+  if (task) {
+    task.name = document.getElementById("title").value;
+    task.priority = document.getElementById("priority").value;
+    task.deadline = document.getElementById("deadline").value;
+    task.comments = document.getElementById("comments").value;
+    updateTask(task.id, task.name);
+  }
+  modal.style.display = "none";
+  renderTasks();
+};
+
+function updateButtonClasses() {
+  btnToday.className = activeList === "today" ? "clickedbtn" : "btn";
+  btnPending.className = activeList === "pending" ? "clickedbtn" : "btn";
+  btnOverdue.className = activeList === "overdue" ? "clickedbtn" : "btn";
+}
+
+btnToday.onclick = () => {
+  activeList = "today";
   updateButtonClasses();
   renderTasks();
+};
+btnPending.onclick = () => {
+  activeList = "pending";
+  updateButtonClasses();
+  renderTasks();
+};
+btnOverdue.onclick = () => {
+  activeList = "overdue";
+  updateButtonClasses();
+  renderTasks();
+};
+
+function updateTaskCompleted(id, completed) {
+  console.log(`Task ${id} marked as ${completed ? "complete" : "incomplete"}`);
+}
+
+function updateTask(id, newName) {
+  console.log(`Task ${id} renamed to ${newName}`);
+}
+
+function deleteTask(id) {
+  console.log(`Task ${id} deleted`);
+}
+
+updateButtonClasses();
+renderTasks();
 </script>
 
 </body>

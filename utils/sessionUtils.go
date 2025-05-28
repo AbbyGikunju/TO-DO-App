@@ -2,10 +2,32 @@ package utils
 
 import (
 	"crypto/rand"
+	"database/sql"
 	"encoding/hex"
+	"errors"
 	"net/http"
 	"time"
+
+	"todo-app/db"
 )
+
+//GetUserIDFromsession retrieves the user ID associated with the session token
+func GetUserIDFromSession(r *http.Request) (int, error) {
+	token := GetSessionToken(r)
+	if token == "" {
+		return 0, errors.New("missing session token")
+	}
+	var userID int
+	err := db.DB.QueryRow("SELECT user_id FROM sessions where token = ?", token).Scan(&userID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return 0, errors.New("invalid session token")
+		}
+		return 0, err
+	}
+	return userID, nil
+}
+
 
 //GenerateSessionToken creates a secure random token string
 func GenerateSessionToken() string {
